@@ -1,0 +1,812 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+	<title>MAHSA</title>
+
+	<link rel="stylesheet" href="../../reveal/dist/reset.css">
+	<link rel="stylesheet" href="../../reveal/dist/reveal.css">
+	<link rel="stylesheet" href="../../reveal/dist/theme/league.css">
+
+	<!-- Theme used for syntax highlighted code -->
+	<link rel="stylesheet" href="../../reveal/plugin/highlight/monokai.css">
+</head>
+
+<body>
+	<div class="reveal">
+		<div class="slides">
+			<section>
+				<h3 style="color:lightgreen">SQL Data Import Pipeline for</h3>
+				<img src="assets/img/arches.webp" alt="arches icon" width=40% height=40%>
+
+				<br>
+				<h4 style="font-size:60%">Presented By: Junaid Abdul Jabbar</h4>
+				<img src="assets/img/project_logos.png">
+
+
+			</section>
+
+			
+			<section>
+				<img src="assets/img/mahsa.png" alt="arches icon" width=30% height=30%>
+				<br>
+				<ul style="text-align: left;font-size:60%">
+					<li>Documenting the archaeology and cultural heritage of the Indus River Basin and surrounding areas.</li>
+					<br>
+					<li>Started with Arches v5.1, currently on v7.6.15</li>
+				</ul>
+			</section>
+
+			<section>
+				<img src="assets/img/arches.webp" alt="arches icon" width=30% height=30%>
+				<br>
+				<ul style="text-align: left;font-size:60%">
+					<li>CSV Import</li>
+					<br>
+					<li>Shapefile Import</li>
+					<br>
+					<li>JSON Import</li>
+					<br>
+					<li>SQL Import</li>
+					<br>
+					<li>Bulk Data Manager</li>
+				</ul>
+			</section>
+
+			<section>
+				<h4 style="color:lightgreen;font-weight:bold">Data Challenges</h4>
+				<ul style="text-align: left;font-size:50%">
+					<li>Complex site records with attribute and location variations</li>
+					<br>
+					<img src="assets/img/Map2.png" style="display: block; margin: 0 auto;" alt="Centered Image" width=50%
+						height=50%>
+
+
+				</ul>
+			</section>
+
+
+		
+
+			<section>
+				<h4 style="color:lightgreen;font-weight:bold">Data Challenges</h4>
+				<ul style="text-align: left;font-size:50%">
+					<li>Nested resource model and data import</li>
+					<br>
+					<img src="assets/img/hl_rm_2.png" style="display: block; margin: 0 auto;" alt="Centered Image" width=50%
+						height=50%>
+				</ul>
+			</section>
+
+			<section>
+				<h4 style="color:lightgreen;font-weight:bold">Data Challenges</h4>
+				<ul style="text-align: left;font-size:50%">
+					<li>Collaborative working in a GIS environment with multiple reference layers to compare attributes
+						and location to collate data</li>
+					<br>
+					<img src="assets/img/qgis_form.png" style="display: block; margin: 0 auto;" alt="Centered Image" width=80%
+						height=80%>
+				</ul>
+			</section>
+
+			<section>
+				<h4 style="color:lightgreen;font-weight:bold">Nested Data Import Options</h4>
+				<br>
+				<ul style="text-align: left;font-size:50%">
+					<li>JSON Import - primarily intended for transferring business data between arches instances.</li>
+					<br>
+					<li>SQL Import - much more flexible and faster than csv data import. Especially useful to
+						migrate data from a SQL database into Arches.</li>
+				</ul>
+			</section>
+
+
+
+
+			<section>
+				<h4 style="color:lightgreen;font-weight:bold">Foreign Data Wrapper</h4>
+
+				<ul style="text-align: left;font-size:50%">
+					To prepare for remote access using postgres_fdw:
+
+					<ul>
+						<br>
+						<li>Install the postgres_fdw extension with <span
+								style="color:lightcoral;font-weight:bold">CREATE EXTENSION</span></li>
+						<br>
+						<li>Create a foreign server object using <span style="color:lightcoral;font-weight:bold">CREATE
+								SERVER</span> for remote database, specifying
+							connection information.</li>
+						<br>
+						<li>Create a user mapping with <span style="color:lightcoral;font-weight:bold">CREATE USER
+								MAPPING</span> for database user allowed to access the
+							foreign server, specifying remote user credentials.</li>
+						<br>
+						<li>Create a foreign table using <span style="color:lightcoral;font-weight:bold">IMPORT FOREIGN
+								SCHEMA</span> for each remote
+							table, ensuring columns match the remote table.</li>
+					</ul>
+				</ul>
+			</section>
+
+			<section data-auto-animate>
+				<h4 style="color:lightgreen;font-weight:bold">Create schema for resource models</h4>
+				<li style="text-align: left;font-size:50%">Create schema for all published resource models</li>
+				
+				<pre style="width: 600px; margin: 0 auto;">
+					<code style="font-size: 90%; box-shadow: none;display: block;">
+						<script type="text/template">SELECT __arches_create_resource_model_views(graphid)
+FROM graphs
+WHERE publicationid IS NOT NULL
+AND isresource IS TRUE
+AND name->>'en' != 'Arches System Settings';</script>
+    				</code>
+				</pre>
+
+				<li style="text-align: left;font-size:50%">Create schema for a particular resource model</li>
+				<pre>
+						<code style="width: 600px; margin: 0 auto; display: block; font-size: 90%;">
+							<script type="text/template";>SELECT __arches_create_resource_model_views(graphid)
+FROM graphs
+WHERE publicationid IS NOT NULL
+AND isresource IS TRUE
+AND graphid = '8d765e70-b69b-11ed-8613-efcdc71353a1';</script>
+						</code>
+					</pre>
+			</section>
+
+
+			<section>
+				<h4 style="color:lightgreen;font-weight:bold">Heritage Location Schema</h4>
+				<ul style="text-align: left;font-size:50%">
+					<img src="assets/img/r_views_2.JPG" style="display: block; margin: 0 auto;" alt="Centered Image" width=75%
+						height=75%>
+				</ul>
+			</section>
+
+			<section data-auto-animate>
+				<h4 style="color:lightgreen;font-weight:bold">Resource Model Schema - Instances</h4>
+				<li style="text-align: left;font-size:50%">Each resource model schema will have a view 'Instances'</li>
+				<pre>
+						<code data-line-numbers style="width: 750px; margin: 0 auto; display: block; font-size: 90%;">
+							<script type="text/template";>INSERT INTO heritage_location.instances (resourceinstanceid, legacyid)
+SELECT uuid_value, mahsa_id
+FROM ft_hl_resources;</script>
+						</code>
+					</pre>
+			</section>
+
+			<!--
+			<section data-auto-animate>
+				<h4 style="color:lightgreen;font-weight:bold">SQL Functions</h4>
+
+				<pre>
+						<code data-line-numbers="1|2|3|4|5">
+							<script type="text/template";>__arches_create_nodegroup_view (group_id, view_name, schema_name, parent_name)
+__arches_create_branch_views (group_id, schema_name)
+__arches_create_resource_model_views (model_id, schema_name)
+__arches_get_node_id_for_view_column (schema_name,view_name,column_name)
+__arches_get_labels_for_concept_node (node_id, language_id)
+							</script>
+						</code>
+					</pre>
+			</section>
+-->
+			<section data-auto-animate>
+				<h4 style="color:lightgreen;font-weight:bold">Arches String - PostgreSQL JSONB</h4>
+				<pre>
+						<code style="width: 300px; margin: 0 auto; display: block;">
+							<script type="text/template">{
+	"en":{
+		"value":"Anbar Well",
+		"direction":"ltr"
+	}
+}
+</script>
+</code>
+</pre>
+			</section>
+
+			<section data-auto-animate>
+				<h4 style="color:lightgreen;font-weight:bold">Arches String - PostgreSQL JSONB</h4>
+				<pre>
+			<code style="width: 300px; margin: 0 auto; display: block;">
+				<script type="text/template">{
+	"en":{
+		"value":"Anbar Well",
+		"direction":"ltr"
+	},
+	"hi":{
+		"value":"अनबर खैर",
+		"direction":"ltr"
+	},
+	"ur":{
+		"value":"عنبر ویل",
+		"direction":"rtl"
+	}
+}
+</script>
+</code>
+</pre>
+			</section>
+
+			<section data-auto-animate>
+				<h4 style="color:lightgreen;font-weight:bold">Arches String - PostgreSQL JSONB</h4>
+				<pre>
+			<code data-line-numbers style="width: 800px; margin: 0 auto; display: block; font-size: 90%;">
+				<script type="text/template">CREATE OR REPLACE FUNCTION build_lang_json(text_value TEXT, lang_code TEXT)
+RETURNS JSONB AS $$
+BEGIN
+-- Return NULL if text_value is NULL
+IF text_value IS NULL THEN
+RETURN NULL;
+END IF;
+
+RETURN jsonb_build_object(
+'en', jsonb_build_object('value', CASE WHEN lang_code = 'en' THEN text_value
+                                       ELSE '' END, 'direction', 'ltr'),
+'ur', jsonb_build_object('value', CASE WHEN lang_code = 'ur' THEN text_value
+                                       ELSE '' END, 'direction', 'rtl'),
+'hi', jsonb_build_object('value', CASE WHEN lang_code = 'hi' THEN text_value
+                                       ELSE '' END, 'direction', 'ltr')
+);
+END;
+$$ LANGUAGE plpgsql;</script>
+			</code>
+		</pre>
+			</section>
+
+			<section data-auto-animate>
+				<h4 style="color:lightgreen;font-weight:bold;">Import Strings</h4>
+				<pre>
+						<code data-line-numbers style="width: 720px; margin: 0 auto; display: block; font-size: 90%;">  
+							<script type="text/template">-- insert data for name branch in heritage location resource model
+INSERT INTO heritage_location.name (
+	tileid,
+	name,
+	-- name_type,
+	resourceinstanceid)
+SELECT 
+	uuid_generate_v4(),
+	build_lang_json(name, 'en'),
+	resourceinstanceid 
+FROM
+	 ft_hl_name;</script>
+						</code>
+					</pre>
+			</section>
+
+			<section data-auto-animate>
+				<h4 style="color:lightgreen;font-weight:bold">Import URL</h4>
+				<pre>
+						<code data-line-numbers style="width: 960px; margin: 0 auto; display: block;  font-size: 90%;">
+							<script type="text/template"> -- insert external reference for external source branch
+INSERT INTO heritage_location.external_source(
+(
+	tileid,
+	external_reference,
+	resourceinstanceid)
+)
+SELECT 
+	uuid_generate_v4(), 
+	jsonb_build_object('url', external_reference, 'url_label', 'View External Source'),
+	resourceinstanceid
+FROM
+	ft_hl_external_source;
+</script>
+</code>
+</pre>
+			</section>
+			<section>
+				<h4 style="color:lightgreen;font-weight:bold">Import Concepts</h4>
+				<pre>
+					<code data-line-numbers style="width: 500px; margin: 0 auto; display: block;  font-size: 90%;">
+						<script type="text/template">SELECT valueid, value
+FROM __arches_get_labels_for_concept_node(
+	__arches_get_node_id_for_view_column(
+		'heritage_location', --schema_name
+		'name', --view_name
+		'name_type' --column_name
+	)
+)
+</script>
+</code>
+</pre>
+
+
+
+				<table style="width: 50%; border-collapse: collapse; text-align: left; font-size: 0.4em; margin: auto;">
+				  <thead>
+					<tr>
+					  <th style="border: 1px solid #ddd; padding: 4px;">valueid</th>
+					  <th style="border: 1px solid #ddd; padding: 4px;">value</th>
+					</tr>
+				  </thead>
+				  <tbody>
+					<tr>
+					  <td style="border: 1px solid #ddd; padding: 4px;">60e5e6bd-553c-4928-8cf6-c86c96f982a4</td>
+					  <td style="border: 1px solid #ddd; padding: 4px;">Alternate Name(s)</td>
+					</tr>
+					<tr>
+					  <td style="border: 1px solid #ddd; padding: 4px;">e42c8f5c-1533-412b-bd74-1ad7c4c5d526</td>
+					  <td style="border: 1px solid #ddd; padding: 4px;">Primary Name</td>
+					</tr>
+					<tr>
+					  <td style="border: 1px solid #ddd; padding: 4px;">bf229f6b-f958-4413-9a81-d113eb368206</td>
+					  <td style="border: 1px solid #ddd; padding: 4px;">Survey/Reference ID</td>
+					</tr>
+					<tr>
+					  <td style="border: 1px solid #ddd; padding: 4px;">33216af5-1821-4662-8589-4b9ec181e0aa</td>
+					  <td style="border: 1px solid #ddd; padding: 4px;">Village Name</td>
+					</tr>
+				  </tbody>
+				</table>
+			  </section>
+			  
+			  
+			<section data-auto-animate>
+				<h4 style="color:lightgreen;font-weight:bold">Import Concepts</h4>
+				<pre>
+						<code data-line-numbers="1-11|12-17|18-28" style="font-size:90%;">
+							<script type="text/template">-- insert data for name branch in heritage location resource model
+WITH name_type (valueid, value) AS (
+	SELECT valueid, value
+	FROM __arches_get_labels_for_concept_node(
+		__arches_get_node_id_for_view_column(
+			'heritage_location', --schema_name
+			'name', --view_name
+			'name_type' --column_name
+		)
+	)
+) 
+INSERT INTO heritage_location.name (
+	tileid,
+	name,
+	name_type,
+	resourceinstanceid
+)
+SELECT 
+	uuid_generate_v4(),
+	build_lang_json(name, 'en'),
+	(
+		SELECT valueid
+		FROM name_type
+		WHERE value = name_type
+	),
+	resourceinstanceid 
+FROM ft_hl_name;
+								</script>
+						</code>
+					</pre>
+			</section>
+
+			
+
+		<!--	<section data-auto-animate>
+				<h4 style="color:lightgreen;font-weight:bold">Import Geojson-feature-collection</h4>
+				<pre>
+						<code style="width: 300px; margin: 0 auto; display: block;">
+							<script type="text/template">{
+	"en":{
+		"value":"Anbar Well",
+		"direction":"ltr"
+	}
+}
+</script>
+</code>
+</pre>
+			</section> -->
+
+
+			<section data-auto-animate>
+				<h4 style="color:lightgreen;font-weight:bold">Function for Concept-list</h4>
+
+				<pre>
+						<code data-line-numbers class="language-sql" data-line-numbers="1-8|9-12|13-29" style="font-size:90%;">
+							<script type="text/template">CREATE OR REPLACE FUNCTION public.__arches_get_uuids_concept_list(
+	schema_name text,
+	view_name text,
+	column_name text,
+	concept_list_data text
+) 
+RETURNS uuid[] 
+AS $BODY$
+DECLARE
+	concept text;
+	concept_list text[];
+	concept_uuid text;
+	concept_list_uuids text[];
+BEGIN
+	-- Get the list of concepts
+EXECUTE FORMAT(
+	'SELECT array_agg(term) 
+		FROM (
+			SELECT row_number() OVER () AS rn, 
+	unnest(string_to_array( '|| concept_list_data || ',',','')::text[]) term) t '
+) INTO concept_list;
+
+-- Loop through the all concepts
+	FOREACH concept IN ARRAY concept_list
+	LOOP
+		RAISE NOTICE 'Processing concept: %', concept;
+
+		-- Retrieve the UUID for each concept
+		EXECUTE FORMAT(
+			'WITH concept_value (valueid, value) AS (
+				SELECT valueid, value 
+				FROM __arches_get_labels_for_concept_node(
+					__arches_get_node_id_for_view_column(
+						%L, %L, %L
+					)
+				)
+			)
+			SELECT valueid::text 
+			FROM concept_value 
+			WHERE value = %L',
+			schema_name, view_name, column_name, concept
+		) INTO concept_uuid;
+
+		-- Append the UUID to the list
+		concept_list_uuids := array_append(concept_list_uuids::text[], concept_uuid::text);
+	END LOOP;
+	
+	RETURN concept_list_uuids;
+END
+$BODY$
+LANGUAGE 'plpgsql' ;</script>
+						</code>
+					</pre>
+			</section>
+
+			<section data-auto-animate>
+				<h4 style="color:lightgreen;font-weight:bold">Import Concept-list</h4>
+				<br>
+
+				<pre>
+
+						<code data-line-numbers class="language-sql" style="font-size:100%;">
+							<script type="text/template">select __arches_get_uuids_concept_list 
+('heritage_location','assessment_activity','assessment_type',assessment_type)
+from ft_hl_assessment_activity;</script>
+						</code>
+					</pre>
+				<pre>
+						<code class="language-sql" style="font-size:100%;">
+							<script type="text/template">{56753655-3780-4dea-98b2-c33b9eb1139a,8c295c0f-dc55-410a-a11b-b72b204852e7}</script>
+						</code>
+					</pre>
+			</section>
+
+			<section data-auto-animate>
+				<h4 style="color:lightgreen;font-weight:bold">Import Resource Instance</h4>
+				<pre>
+						<code style="width: 600px; margin: 0 auto; display: block; font-size: 90%;">
+							<script type="text/template">[
+	{
+		"resourceId":"05176558-762e-4ec7-844d-d98af58cc203",
+		"ontologyProperty":"P34i_was_assessed_by",
+		"resourceXresourceId":"",
+		"inverseOntologyProperty":"P34_concerned"
+	}
+]</script>
+						</code>
+					</pre>
+			</section>
+
+			<section data-auto-animate>
+				<h4 style="color:lightgreen;font-weight:bold">Import Resource Instance</h4>
+				<pre>
+						<code data-line-numbers="1-8|9-12|13-30" style="font-size:90%;">
+							<script type="text/template">-- Inserting resource relations between heritage_location and person/organisation resource model
+-- Get resourceinstanceid and mahsa_id
+WITH po_ids (valueid, value) AS (
+	SELECT 
+		resourceinstanceid, 
+		legacyid 
+	FROM 
+		person_organization.instances
+)
+INSERT INTO heritage_location.assessment_activity (
+	tileid,
+	assessor,
+	resourceinstanceid )
+SELECT 
+	uuid_generate_v4(),
+	jsonb_build_array(
+		jsonb_build_object(
+			'resourceId', (
+				SELECT valueid
+				FROM po_ids
+				WHERE value = assessor_id
+			),
+			'ontologyProperty', assessor_forward_ontology,
+			'resourceXresourceId', '',
+			'inverseOntologyProperty', assessor_inverse_ontology
+		)
+	),
+	resourceinstanceid 
+FROM 
+    ft_hl_assessment_activity;
+								</script>
+						</code>
+					</pre>
+			</section>
+		
+			<section data-auto-animate>
+				<h4 style="color:lightgreen;font-weight:bold">Import Resource Instance List</h4>
+				<pre>
+						<code style="width: 600px; margin: 0 auto; display: block; font-size: 90%;">
+							<script type="text/template">[
+	{
+		"resourceId":"b70f2743-ac72-4c60-91e6-071ca4582717",
+		"ontologyProperty":"P70i_is_documented_in",
+		"resourceXresourceId":"",
+		"inverseOntologyProperty":"P70_documents"
+	},
+	{
+		"resourceId":"9a6441ae-e2e6-453d-a073-5095c052d214",
+		"ontologyProperty":"P70i_is_documented_in",
+		"resourceXresourceId":"",
+		"inverseOntologyProperty":"P70_documents"
+	},
+	{
+		"resourceId":"341836a2-9f49-4603-8894-3c215c8f4108",
+		"ontologyProperty":"P70i_is_documented_in",
+		"resourceXresourceId":"",
+		"inverseOntologyProperty":"P70_documents"
+	}
+]</script>
+						</code>
+					</pre>
+			</section>
+
+			<section data-auto-animate>
+				<h4 style="color:lightgreen;font-weight:bold">Import Resource Instance List</h4>
+				<pre>
+						<code data-line-numbers="1-14|15-30|31-35|36-43" style="font-size: 90%;">
+							<script type="text/template">-- Get resourceinstanceid and mahsa_id
+WITH related_ids AS (
+SELECT 
+	resourceinstanceid, 
+	legacyid
+FROM 
+	historic_maps.instances
+UNION
+SELECT 
+	resourceinstanceid, 
+	legacyid
+FROM 
+	information_resource_model.instances
+),
+related_resources AS (
+SELECT
+	rr.resourceinstanceid,
+	jsonb_build_object(
+		'resourceId', ri.valueid,
+		'ontologyProperty', rr.related_resource_forward_ontology,
+		'resourceXresourceId', '',
+		'inverseOntologyProperty', rr.related_resource_inverse_ontology
+	) AS related_resource
+FROM
+	ft_hl_resource_relationships rr
+JOIN 
+	related_ids ri 
+ON 
+	rr.related_resource_id = ri.value
+)
+INSERT INTO heritage_location.related_resources (
+	tileid,
+	related_resources,
+	resourceinstanceid
+)
+SELECT
+	uuid_generate_v4(),
+	jsonb_agg(related_resource),
+	resourceinstanceid
+FROM
+	related_resources
+GROUP BY
+	resourceinstanceid;</script>
+						</code>
+					</pre>
+			</section>
+
+		
+			<section data-auto-animate>
+				<h4 style="color:lightgreen;font-weight:bold">Import Nested Data - Condition Assessment</h4>
+				<pre>
+						<code data-line-numbers style="width: 800px; margin: 0 auto; display: block; font-size: 90%;">
+							<script type="text/template">WITH overall_condition (valueid, value) AS
+(SELECT valueid, value
+	FROM __arches_get_labels_for_concept_node(
+		__arches_get_node_id_for_view_column(
+			'heritage_location',
+			'condition_assessment',
+			'overall_condition'
+		)
+	)
+)
+INSERT INTO heritage_location.condition_assessment (
+	tileid,
+	overall_condition,
+	resourceinstanceid
+)
+(SELECT
+	ca_parent_tileid,
+	(
+		SELECT valueid
+		FROM overall_condition
+		WHERE value = overall_condition
+	),
+	resourceinstanceid
+	FROM ft_hl_condition_assessment
+);</script>
+						</code>
+					</pre>
+			</section>
+
+			<section data-auto-animate>
+				<h4 style="color:lightgreen;font-weight:bold">Import Nested Data - Condition Assessment</h4>
+				<pre>
+						<code data-line-numbers style="width: 900px; margin: 0 auto; display: block; font-size: 90%;">
+							<script type="text/template">WITH condition_recommendation_description_type (valueid, value) AS (
+SELECT valueid, value
+	FROM __arches_get_labels_for_concept_node(
+		__arches_get_node_id_for_view_column(
+			'heritage_location',
+			'condition_recommendation_description_assignment',
+			'condition_recommendation_description_type'
+		)
+	)
+)
+INSERT INTO heritage_location.condition_recommendation_description_assignment (
+	tileid,
+	condition_recommendation_description_type,
+	condition_recommendation_description,
+	resourceinstanceid,
+	condition_assessment
+)
+(
+	SELECT
+		uuid_generate_v4(),
+		(
+			SELECT valueid
+			FROM condition_recommendation_description_type
+			WHERE value = condition_recommendation_description_type
+		),
+		build_lang_json(condition_recommendation_description, 'en'),
+		resourceinstanceid,
+		ca_parent_tileid
+	FROM ft_hl_condition_recommendation_description
+);</script>
+						</code>
+					</pre>
+			</section>
+
+
+
+			
+			<section data-auto-animate>
+				<h4 style="color:lightgreen;font-weight:bold">Import Geometries</h4>
+				<pre>
+						<code data-line-numbers style="width: 900px; margin: 0 auto; display: block; font-size: 90%;">
+							<script type="text/template">WITH geometry_qualifier (valueid, value) AS (
+SELECT valueid, value
+	FROM __arches_get_labels_for_concept_node(
+		__arches_get_node_id_for_view_column(
+			'heritage_location',
+			'geographic_location',
+			'geometry_qualifier'
+		)
+	)
+)
+INSERT INTO heritage_location.geographic_location (
+	tileid,
+	geometry_qualifier,
+	spatial_coordinates_geometry,
+	resourceinstanceid
+)
+SELECT 
+	uuid_generate_v4(),
+	(
+		SELECT valueid
+		FROM geometry_qualifier
+		WHERE value = geometry_qualifier
+	),
+	geom,
+	resourceinstanceid
+FROM ft_hl_geographic_location_point;
+
+SELECT * FROM refresh_geojson_geometries();
+							</script>
+						</code>
+					</pre>
+			</section>
+
+
+			<section>
+				<h4 style="color:lightgreen;font-weight:bold">Sample Imported Data</h4>
+				<ul style="text-align: left;font-size:50%">
+					<img src="assets/img/arches_database.png" style="display: block; margin: 0 auto;" alt="Centered Image" width=100%
+						height=100%>
+				</ul>
+			</section>
+
+						
+			<section>
+				<h4 style="color:lightgreen;font-weight:bold">Sample Imported Data</h4>
+				<ul style="text-align: left;font-size:50%">
+					<img src="assets/img/arches_database_2.png" style="display: block; margin: 0 auto;" alt="Centered Image" width=100%
+						height=100%>
+				</ul>
+			</section>
+
+			<section>
+				<h4 style="color:lightgreen;font-weight:bold">Sample Imported Data</h4>
+				<ul style="text-align: left;font-size:50%">
+					<img src="assets/img/arches_database_3.png" style="display: block; margin: 0 auto;" alt="Centered Image" width=100%
+						height=100%>
+				</ul>
+			</section>
+
+			<section>
+				<h4 style="color:lightgreen;font-weight:bold">SQL Import</h4>
+				<ul style="text-align: left;font-size:70%">
+					<li>More control over data import</li>
+					<li>Can update, delete, insert for single branches or nodes</li>
+					<li>Faster once the SQL queries and functions are ready</li>
+					<li>Require data validation checks</li>
+					<li>Authoritative and Provisional data</li>
+				</ul>
+			</section>
+
+
+			<section>
+				<h4 style="color:lightgreen;font-weight:bold">New Features</h4>
+				<ul style="text-align: left;font-size:70%">
+					<li>GeoJSON URL, fix for basic HTTP authorization</li>
+					<li>QGIS Plugin for Arches</li>
+					<li>Bulk Data Manager, tile and branch excel imports</li>
+					<li>New permissions framework, groups and sets</li>
+					<br>
+				</ul>
+			</section>
+			<section>
+				<h4 style="color:lightgreen;font-weight:bold">Arches User Documentation</h4>
+			</section>
+
+			<section>
+				<h4 style="color:lightgreen;font-weight:bold">Thank You!</h4>
+			</section>
+		</div>
+	</div>
+
+	<script src="../../reveal/dist/reveal.js"></script>
+	<script src="../../reveal/plugin/notes/notes.js"></script>
+	<script src="../../reveal/plugin/markdown/markdown.js"></script>
+	<script src="../../reveal/plugin/highlight/highlight.js"></script>
+	<script>
+		// More info about initialization & config:
+		// - https://revealjs.com/initialization/
+		// - https://revealjs.com/config/
+		Reveal.initialize({
+			hash: true,
+
+			margin: -0.2,
+			slideNumber: true,
+			showSlideNumber: 'all',
+			center: true,
+			maxHeight: 700,   // Maximum height for slides
+
+
+
+			// Learn about plugins: https://revealjs.com/plugins/
+			plugins: [RevealMarkdown, RevealHighlight, RevealNotes]
+		});
+	</script>
+</body>
+
+</html>
