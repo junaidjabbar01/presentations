@@ -294,27 +294,7 @@ FROM
 					</pre>
 			</section>
 
-			<!-- <section data-auto-animate>
-				<h4 style="color:lightgreen;font-weight:bold">Import URL</h4>
-				<pre>
-						<code data-line-numbers style="width: 960px; margin: 0 auto; display: block;  font-size: 90%;">
-							<script type="text/template"> -- insert external reference for external source branch
-INSERT INTO heritage_location.external_source(
-(
-	tileid,
-	external_reference,
-	resourceinstanceid)
-)
-SELECT
-	uuid_generate_v4(),
-	jsonb_build_object('url', external_reference, 'url_label', 'View External Source'),
-	resourceinstanceid
-FROM
-	ft_hl_external_source;
-</script>
-</code>
-</pre>
-			</section> -->
+
 			<section>
 				<h4 style="color:lightgreen;font-weight:bold">Import Concepts</h4>
 								<table style="width: 50%; border-collapse: collapse; text-align: left; font-size: 0.4em; margin: auto;">
@@ -419,86 +399,6 @@ FROM ft_hl_name;
 			</section> -->
 
 
-			<!-- <section data-auto-animate>
-				<h4 style="color:lightgreen;font-weight:bold">Function for Concept-list</h4>
-
-				<pre>
-						<code data-line-numbers class="language-sql" data-line-numbers="1-8|9-12|13-29" style="font-size:90%;">
-							<script type="text/template">CREATE OR REPLACE FUNCTION public.__arches_get_uuids_concept_list(
-	schema_name text,
-	view_name text,
-	column_name text,
-	concept_list_data text
-)
-RETURNS uuid[]
-AS $BODY$
-DECLARE
-	concept text;
-	concept_list text[];
-	concept_uuid text;
-	concept_list_uuids text[];
-BEGIN
-	-- Get the list of concepts
-EXECUTE FORMAT(
-	'SELECT array_agg(term)
-		FROM (
-			SELECT row_number() OVER () AS rn,
-	unnest(string_to_array( '|| concept_list_data || ',',','')::text[]) term) t '
-) INTO concept_list;
-
--- Loop through the all concepts
-	FOREACH concept IN ARRAY concept_list
-	LOOP
-		RAISE NOTICE 'Processing concept: %', concept;
-
-		-- Retrieve the UUID for each concept
-		EXECUTE FORMAT(
-			'WITH concept_value (valueid, value) AS (
-				SELECT valueid, value
-				FROM __arches_get_labels_for_concept_node(
-					__arches_get_node_id_for_view_column(
-						%L, %L, %L
-					)
-				)
-			)
-			SELECT valueid::text
-			FROM concept_value
-			WHERE value = %L',
-			schema_name, view_name, column_name, concept
-		) INTO concept_uuid;
-
-		-- Append the UUID to the list
-		concept_list_uuids := array_append(concept_list_uuids::text[], concept_uuid::text);
-	END LOOP;
-
-	RETURN concept_list_uuids;
-END
-$BODY$
-LANGUAGE 'plpgsql' ;</script>
-						</code>
-					</pre>
-			</section> -->
-
-			<!-- <section data-auto-animate>
-				<h4 style="color:lightgreen;font-weight:bold">Import Concept-list</h4>
-				<br>
-
- <pre style="width: 1000px; margin: 0 auto; margin-bottom: 8px;">
-
-						<code data-line-numbers class="language-sql" style="font-size:100%;">
-							<script type="text/template">select __arches_get_uuids_concept_list
-('heritage_location','assessment_activity','assessment_type',assessment_type)
-from ft_hl_assessment_activity;</script>
-						</code>
-					</pre>
-
-<pre style="width: 920px; margin: 0 auto; margin-bottom: 8px;">
-
-						<code class="language-sql" style="font-size:100%;">
-							<script type="text/template">{56753655-3780-4dea-98b2-c33b9eb1139a,8c295c0f-dc55-410a-a11b-b72b204852e7}</script>
-						</code>
-					</pre>
-			</section>  -->
 
 			<section data-auto-animate>
 				<h4 style="color:lightgreen;font-weight:bold">Import Resource Instance</h4>
@@ -556,86 +456,7 @@ FROM
 					</pre>
 			</section>
 
-			<!-- <section data-auto-animate>
-				<h4 style="color:lightgreen;font-weight:bold">Import Resource Instance List</h4>
-				<pre>
-						<code style="width: 600px; margin: 0 auto; display: block; font-size: 90%;">
-							<script type="text/template">[
-	{
-		"resourceId":"b70f2743-ac72-4c60-91e6-071ca4582717",
-		"ontologyProperty":"P70i_is_documented_in",
-		"resourceXresourceId":"",
-		"inverseOntologyProperty":"P70_documents"
-	},
-	{
-		"resourceId":"9a6441ae-e2e6-453d-a073-5095c052d214",
-		"ontologyProperty":"P70i_is_documented_in",
-		"resourceXresourceId":"",
-		"inverseOntologyProperty":"P70_documents"
-	},
-	{
-		"resourceId":"341836a2-9f49-4603-8894-3c215c8f4108",
-		"ontologyProperty":"P70i_is_documented_in",
-		"resourceXresourceId":"",
-		"inverseOntologyProperty":"P70_documents"
-	}
-]</script>
-						</code>
-					</pre>
-			</section>
-
-			<section data-auto-animate>
-				<h4 style="color:lightgreen;font-weight:bold">Import Resource Instance List</h4>
-				<pre>
-						<code data-line-numbers="1-14|15-30|31-35|36-43" style="font-size: 90%;">
-							<script type="text/template">-- Get resourceinstanceid and mahsa_id
-WITH related_ids AS (
-SELECT
-	resourceinstanceid,
-	legacyid
-FROM
-	historic_maps.instances
-UNION
-SELECT
-	resourceinstanceid,
-	legacyid
-FROM
-	information_resource_model.instances
-),
-related_resources AS (
-SELECT
-	rr.resourceinstanceid,
-	jsonb_build_object(
-		'resourceId', ri.valueid,
-		'ontologyProperty', rr.related_resource_forward_ontology,
-		'resourceXresourceId', '',
-		'inverseOntologyProperty', rr.related_resource_inverse_ontology
-	) AS related_resource
-FROM
-	ft_hl_resource_relationships rr
-JOIN
-	related_ids ri
-ON
-	rr.related_resource_id = ri.value
-)
-INSERT INTO heritage_location.related_resources (
-	tileid,
-	related_resources,
-	resourceinstanceid
-)
-SELECT
-	uuid_generate_v4(),
-	jsonb_agg(related_resource),
-	resourceinstanceid
-FROM
-	related_resources
-GROUP BY
-	resourceinstanceid;</script>
-						</code>
-					</pre>
-			</section>
-
-		 -->
+			
 			<section data-auto-animate>
 				<h4 style="color:lightgreen;font-weight:bold">Import Parent Child - Condition Assessment</h4>
 <pre style="width: 660px; margin: 0 auto; margin-bottom: 8px;">
@@ -743,6 +564,190 @@ SELECT * FROM refresh_geojson_geometries();
 					</pre>
 			</section>
 
+<section data-auto-animate>
+				<h4 style="color:lightgreen;font-weight:bold">Function for Concept-list</h4>
+
+				<pre>
+						<code data-line-numbers class="language-sql" data-line-numbers="1-8|9-12|13-29" style="font-size:90%;">
+							<script type="text/template">CREATE OR REPLACE FUNCTION public.__arches_get_uuids_concept_list(
+	schema_name text,
+	view_name text,
+	column_name text,
+	concept_list_data text
+)
+RETURNS uuid[]
+AS $BODY$
+DECLARE
+	concept text;
+	concept_list text[];
+	concept_uuid text;
+	concept_list_uuids text[];
+BEGIN
+	-- Get the list of concepts
+EXECUTE FORMAT(
+	'SELECT array_agg(term)
+		FROM (
+			SELECT row_number() OVER () AS rn,
+	unnest(string_to_array( '|| concept_list_data || ',',','')::text[]) term) t '
+) INTO concept_list;
+
+-- Loop through the all concepts
+	FOREACH concept IN ARRAY concept_list
+	LOOP
+		RAISE NOTICE 'Processing concept: %', concept;
+
+		-- Retrieve the UUID for each concept
+		EXECUTE FORMAT(
+			'WITH concept_value (valueid, value) AS (
+				SELECT valueid, value
+				FROM __arches_get_labels_for_concept_node(
+					__arches_get_node_id_for_view_column(
+						%L, %L, %L
+					)
+				)
+			)
+			SELECT valueid::text
+			FROM concept_value
+			WHERE value = %L',
+			schema_name, view_name, column_name, concept
+		) INTO concept_uuid;
+
+		-- Append the UUID to the list
+		concept_list_uuids := array_append(concept_list_uuids::text[], concept_uuid::text);
+	END LOOP;
+
+	RETURN concept_list_uuids;
+END
+$BODY$
+LANGUAGE 'plpgsql' ;</script>
+						</code>
+					</pre>
+			</section>
+
+			<section data-auto-animate>
+				<h4 style="color:lightgreen;font-weight:bold">Import Concept-list</h4>
+				<br>
+
+ <pre style="width: 1000px; margin: 0 auto; margin-bottom: 8px;">
+
+						<code data-line-numbers class="language-sql" style="font-size:100%;">
+							<script type="text/template">select __arches_get_uuids_concept_list
+('heritage_location','assessment_activity','assessment_type',assessment_type)
+from ft_hl_assessment_activity;</script>
+						</code>
+					</pre>
+
+<pre style="width: 920px; margin: 0 auto; margin-bottom: 8px;">
+
+						<code class="language-sql" style="font-size:100%;">
+							<script type="text/template">{56753655-3780-4dea-98b2-c33b9eb1139a,8c295c0f-dc55-410a-a11b-b72b204852e7}</script>
+						</code>
+					</pre>
+			</section>
+
+			
+			<section data-auto-animate>
+				<h4 style="color:lightgreen;font-weight:bold">Import Resource Instance List</h4>
+                 <pre style="width: 900px; margin: 0 auto;">
+					<code  style="font-size: 90%; box-shadow: none;display: block;">
+							<script type="text/template">[
+	{
+		"resourceId":"b70f2743-ac72-4c60-91e6-071ca4582717",
+		"ontologyProperty":"http://www.cidoc-crm.org/cidoc-crm/P34i_was_assessed_by",
+		"resourceXresourceId":"",
+		"inverseOntologyProperty":"http://www.cidoc-crm.org/cidoc-crm/P34_concerned"
+	},
+	{
+		"resourceId":"9a6441ae-e2e6-453d-a073-5095c052d214",
+		"ontologyProperty":"http://www.cidoc-crm.org/cidoc-crm/P34i_was_assessed_by",
+		"resourceXresourceId":"",
+		"inverseOntologyProperty":"http://www.cidoc-crm.org/cidoc-crm/P34_concerned"
+	},
+	{
+		"resourceId":"341836a2-9f49-4603-8894-3c215c8f4108",
+		"ontologyProperty":"http://www.cidoc-crm.org/cidoc-crm/P70i_is_documented_in",
+		"resourceXresourceId":"",
+		"inverseOntologyProperty":"http://www.cidoc-crm.org/cidoc-crm/P34_concerned"
+	}
+]</script>
+						</code>
+					</pre>
+			</section>
+
+			<section data-auto-animate>
+				<h4 style="color:lightgreen;font-weight:bold">Import Resource Instance List</h4>
+                 <pre style="width: 550px; margin: 0 auto;">
+					<code data-line-numbers style="font-size: 90%; box-shadow: none;display: block;">
+							<script type="text/template">-- Get resourceinstanceid and mahsa_id
+WITH related_ids AS (
+SELECT
+	resourceinstanceid,
+	legacyid
+FROM
+	historic_maps.instances
+UNION
+SELECT
+	resourceinstanceid,
+	legacyid
+FROM
+	information_resource_model.instances
+),
+related_resources AS (
+SELECT
+	rr.resourceinstanceid,
+	jsonb_build_object(
+		'resourceId', ri.valueid,
+		'ontologyProperty', rr.related_resource_forward_ontology,
+		'resourceXresourceId', '',
+		'inverseOntologyProperty', rr.related_resource_inverse_ontology
+	) AS related_resource
+FROM
+	ft_hl_resource_relationships rr
+JOIN
+	related_ids ri
+ON
+	rr.related_resource_id = ri.value
+)
+INSERT INTO heritage_location.related_resources (
+	tileid,
+	related_resources,
+	resourceinstanceid
+)
+SELECT
+	uuid_generate_v4(),
+	jsonb_agg(related_resource),
+	resourceinstanceid
+FROM
+	related_resources
+GROUP BY
+	resourceinstanceid;</script>
+						</code>
+					</pre>
+			</section>
+
+		
+
+			<section data-auto-animate>
+				<h4 style="color:lightgreen;font-weight:bold">Import URL</h4>
+				<pre style="width: 950px; margin: 0 auto;">
+					<code data-line-numbers style="font-size: 90%; box-shadow: none;display: block;">
+							<script type="text/template"> -- insert external reference for external source branch
+INSERT INTO heritage_location.external_source(
+(
+	tileid,
+	external_reference,
+	resourceinstanceid)
+)
+SELECT
+	uuid_generate_v4(),
+	jsonb_build_object('url', external_reference, 'url_label', 'View External Source'),
+	resourceinstanceid
+FROM
+	ft_hl_external_source;
+</script>
+</code>
+</pre>
+			</section>
 
 			<section>
 				<h4 style="color:lightgreen;font-weight:bold">Sample Imported Data</h4>
@@ -771,17 +776,18 @@ SELECT * FROM refresh_geojson_geometries();
 				</ul>
 			</section>
 
-			<section>
-				<h4 style="color:lightgreen;font-weight:bold">SQL Import</h4>
-				<ul style="text-align: left;font-size:60%">
-					<li>Understanding of the resource model structure and SQL</li>
-					<li>Provides greater control over data imports</li>
-					<li>Can insert, update or delete for single branches or nodes</li>
-					<li>Faster once the SQL queries and functions are ready</li>
-					<li>Requires data validation checks</li>
-					<li>Authoritative and Provisional data</li>
-				</ul>
-			</section>
+<section>
+	<h4 style="color:lightgreen;font-weight:bold">SQL Import</h4>
+	<ul style="text-align: left;font-size:60%">
+		<li class="fragment">Resource model structure and SQL</li>
+		<li class="fragment">Provides greater control over data imports</li>
+		<li class="fragment">Can insert, update or delete for single branches or nodes</li>
+		<li class="fragment">Import nested multiples</li>
+		<li class="fragment">Faster once the SQL queries and functions are ready</li>
+		<li class="fragment">Requires data validation checks</li>
+		<li class="fragment">Authoritative data</li>
+	</ul>
+</section>
 
 <!--
 			<section>
