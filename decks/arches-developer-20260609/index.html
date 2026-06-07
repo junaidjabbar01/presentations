@@ -1,0 +1,550 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+	<title>MAHSA</title>
+
+	<link rel="stylesheet" href="../../reveal/dist/reset.css">
+	<link rel="stylesheet" href="../../reveal/dist/reveal.css">
+	<link rel="stylesheet" href="../../reveal/dist/theme/night.css">
+
+	<!-- Theme used for syntax highlighted code -->
+	<link rel="stylesheet" href="../../reveal/plugin/highlight/monokai.css">
+</head>
+
+<body>
+	<div class="reveal">
+		<div class="slides">
+			<section>
+				<h3 style="color:lightskyblue">Kibana for Arches: Setup, Dashboards, and Limitations</h3>
+				<img src="assets/img/arches.webp" alt="arches icon" width=30% height=30%>
+
+				<h4 style="font-size:60%">Presented By: Junaid Abdul Jabbar</h4>
+				<img src="assets/img/project_logos.png">
+
+
+			</section>
+
+<section>
+	<h4 style="color:lightskyblue;font-weight:bold">Use Cases</h4>
+
+		 <img
+    src="assets/img/arches1.jpg"
+    alt="Kibana startup screen"
+    width="100%"
+	height="100%"
+    style="display: block; margin: 0 auto 10px auto;"
+  >
+
+</section>
+
+
+<section>
+	<h4 style="color:lightskyblue;font-weight:bold">Use Case</h4>
+	<ul style="text-align: left;font-size:60%">
+		<li >Data count from Arches UI e.g. concept-list node</li>
+		<li >More holistic statistical view of Arches data</li>
+		<li >Additional data insights, identifies trends or patterns</li>
+	</ul>
+</section>
+
+<section>
+	<h4 style="color:lightskyblue;font-weight:bold">Kibana</h4>
+	<ul style="text-align: left;font-size:60%">
+		<li >Part of the Elastic Stack</li>
+    <li >Search, monitoring and analytics platform for Elasticsearch</li>
+		<li >Create visualisations and dashboards from indexed data</li>
+
+	</ul>
+</section>
+
+
+<section>
+  <h4 style="color: lightskyblue; font-weight: bold; text-align: center;">
+    Setup
+  </h4>
+
+  <pre style="width: fit-content; margin: 0 auto;"><code data-trim class="language-bash" data-line-numbers="1-2|4-7|9-10|12-13" style="font-size: 90%;">
+# Check Elasticsearch version
+$ /usr/share/elasticsearch/bin/elasticsearch --version
+
+# Download and install Kibana
+$ wget https://artifacts.elastic.co/downloads/kibana/kibana-x.x.x-amd64.deb
+$ shasum -a 512 kibana-x.x.x-amd64.deb
+$ sudo dpkg -i kibana-x.x.x-amd64.deb
+
+# Check Kibana status
+$ systemctl status kibana
+
+# Start Kibana
+$ systemctl start kibana
+  </code></pre>
+
+  <p style="font-size: 50%;">
+    <a href="https://www.elastic.co/docs/deploy-manage/deploy/self-managed/install-kibana" target="_blank">
+      Kibana Installation Guide
+    </a>
+  </p>
+</section>
+
+
+
+<section>
+  <h4 style="color: lightskyblue; font-weight: bold; text-align: center; margin-bottom: 10px;">
+    Setup
+  </h4>
+
+  <img
+    src="assets/img/kibana_1.jpg"
+    alt="Kibana startup screen"
+    width="70%"
+    style="display: block; margin: 0 auto 10px auto;"
+  >
+
+  <pre style="width: fit-content; margin: 0 auto;">
+    <code data-trim class="language-bash" style="font-size: 90%;">
+$ /usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token -s kibana
+    </code>
+  </pre>
+</section>
+
+
+<section>
+  <h4 style="color: lightskyblue; font-weight: bold; text-align: center; margin-bottom: 10px;">
+    Setup
+  </h4>
+
+  <img
+    src="assets/img/kibana_2.jpg"
+    alt="Kibana startup screen"
+    width="70%"
+	height="70%"
+    style="display: block; margin: 0 auto 10px auto;"
+  >
+
+ <pre style="width: fit-content; margin: 0 auto;">
+    <code data-trim class="language-bash" style="font-size: 90%;">
+$ /usr/share/kibana/bin/kibana-verification-code
+    </code>
+  </pre>
+</section>
+
+
+
+<section>
+  <h4 style="color: lightskyblue; font-weight: bold; text-align: center; margin-bottom: 10px;">
+    Setup
+  </h4>
+
+  <img
+    src="assets/img/kibana_3.jpg"
+    alt="Kibana startup screen"
+    width="70%"
+	height="70%"
+    style="display: block; margin: 0 auto 10px auto;"
+  >
+
+  <pre style="width: 900px; margin: 0 auto;">
+    <code data-trim class="language-bash" style="font-size: 90%;">
+ELASTICSEARCH_CONNECTION_OPTIONS = { ... "basic_auth": ("elastic", "*****")}
+    </code>
+  </pre>
+</section>
+
+<section>
+  <h4 style="color: lightskyblue; font-weight: bold; text-align: center; margin-bottom: 10px;">
+    Kibana
+  </h4>
+
+  <img
+    src="assets/img/kibana_4.jpg"
+    alt="Kibana startup screen"
+    width="100%"
+    style="display: block; margin: 0 auto 10px auto;"
+  >
+
+</section>
+
+
+<section>
+  <h4 style="color: lightskyblue; font-weight: bold; text-align: center; margin-bottom: 10px;">
+    Indices
+  </h4>
+
+  <img
+    src="assets/img/kibana_5.jpg"
+    alt="Kibana startup screen"
+    width="100%"
+    style="display: block; margin: 0 auto 10px auto;"
+  >
+
+</section>
+
+
+<section>
+  <h4 style="color: lightskyblue; font-weight: bold; text-align: center; margin-bottom: 10px;">
+    Index mapping
+  </h4>
+
+  <img
+    src="assets/img/kibana_6.jpg"
+    alt="Kibana startup screen"
+    width="100%"
+    style="display: block; margin: 0 auto 10px auto;"
+  >
+
+</section>
+
+<section>
+  <h4 style="color: lightskyblue; font-weight: bold; text-align: center; margin-bottom: 10px;">
+    Index mapping
+  </h4>
+
+  <img
+    src="assets/img/kibana_15.jpg"
+    alt="Kibana startup screen"
+    width="100%"
+    style="display: block; margin: 0 auto 10px auto;"
+  >
+
+</section>
+
+<section>
+  <h4 style="color: lightskyblue; font-weight: bold; text-align: center; margin-bottom: 10px;">
+    Discover Index
+  </h4>
+
+  <img
+    src="assets/img/kibana_14.jpg"
+    alt="Kibana startup screen"
+    width="100%"
+    style="display: block; margin: 0 auto 10px auto;"
+  >
+
+</section>
+
+<section>
+  <h4 style="color: lightskyblue; font-weight: bold; text-align: center; margin-bottom: 10px;">
+    Data view
+  </h4>
+
+  <img
+    src="assets/img/kibana_7.jpg"
+    alt="Kibana startup screen"
+    width="100%"
+    style="display: block; margin: 0 auto 10px auto;"
+  >
+
+</section>
+<section>
+  <h4 style="color: lightskyblue; font-weight: bold; text-align: center; margin-bottom: 10px;">
+    Visualisations
+  </h4>
+
+  <img
+    src="assets/img/kibana_8.jpg"
+    alt="Kibana startup screen"
+    width="100%"
+    style="display: block; margin: 0 auto 10px auto;"
+  >
+
+</section>
+<section>
+  <h4 style="color: lightskyblue; font-weight: bold; text-align: center; margin-bottom: 10px;">
+    Visualisations
+  </h4>
+
+  <img
+    src="assets/img/kibana_9.jpg"
+    alt="Kibana startup screen"
+    width="100%"
+    style="display: block; margin: 0 auto 10px auto;"
+  >
+
+</section>
+
+<section>
+  <h4 style="color: lightskyblue; font-weight: bold; text-align: center; margin-bottom: 10px;">
+    Runtime fields
+  </h4>
+
+  <img
+    src="assets/img/kibana_10.jpg"
+    alt="Kibana startup screen"
+   
+    style="display: block; margin: 0 auto 10px auto;"
+  >
+
+</section>
+
+
+<!-- <section>
+
+  <p style="font-size: 100%;">
+    <a href="https://arches.readthedocs.io/en/stable/developing/getting-started/arches-and-elasticsearch/#adding-a-custom-index
+" target="_blank">
+      Custom Index Documentation
+    </a>
+  </p>
+</section>
+ -->
+
+
+<section>
+  <h4 style="color: lightskyblue; font-weight: bold; text-align: center; margin-bottom: 10px;">
+    Custom Index
+  </h4>
+
+  <img
+    src="assets/img/sample_index.jpg"
+    alt="Kibana startup screen"
+   
+    style="display: block; margin: 0 auto 10px auto;"
+  >
+
+</section>
+
+	<section data-auto-animate>
+				<h4 style="color:lightskyblue;font-weight:bold">Custom Index</h4>
+				<pre style="width: fit-content; margin: 0 auto;">
+					<code data-line-numbers style="font-size: 80%; box-shadow: none;display: block;">
+						<script type="text/template">from arches.app.search.base_index import BaseIndex
+from arches.app.models.concept import get_preflabel_from_valueid
+
+
+class SampleIndex(BaseIndex):
+
+    # mapping node UUIDs to field names
+    FIELD_MAPPING = {
+        "8d765f3b-b69b-11ed-8613-efcdc71353a1": "classification",
+        "8d765f32-b69b-11ed-8613-efcdc71353a1": "cultural_periods",
+        "8d765f0e-b69b-11ed-8613-efcdc71353a1": "archaeological_certainty",
+        "8d765eeb-b69b-11ed-8613-efcdc71353a1": "form",
+        "8d765eff-b69b-11ed-8613-efcdc71353a1": "overall_condition",
+        "8d765f10-b69b-11ed-8613-efcdc71353a1": "finds_category",
+        "8d765f16-b69b-11ed-8613-efcdc71353a1": "overall_morphology",
+    }
+
+    def prepare_index(self):
+        # define elasticsearch field mapping
+        self.index_metadata = {
+            "mappings": {
+                "properties": {
+                    "tile_id": {"type": "keyword"},
+                    "name_type": {"type": "keyword"},
+                    "classification": {"type": "keyword"},
+                    "admin_name": {"type": "keyword"},
+                    "archaeological_certainty": {"type": "keyword"},
+                    "cultural_periods": {"type": "keyword"},
+                    "graph_id": {"type": "keyword"},
+                    "form": {"type": "keyword"},
+                    "overall_condition": {"type": "keyword"},
+                    "finds_category": {"type": "keyword"},
+                    "overall_morphology": {"type": "keyword"},
+                    "resourceinstance_id": {"type": "keyword"},
+                }
+            }
+        }
+
+        super(SampleIndex, self).prepare_index()
+
+    def get_documents_to_index(self, resourceinstance, tiles):
+
+        document = {
+            "tile_count": len(tiles),
+            "graph_id": resourceinstance.graph_id,
+            "resourceinstance_id": resourceinstance.resourceinstanceid,
+            "tiles": [],
+        }
+
+        for obj in tiles:
+
+            tile_data = {}
+
+            # skip tiles with no data
+            if not obj.data:
+                continue
+
+            # extract required fields from tile data based on 
+			# FIELD_MAPPING and add to tile_data dictionary
+            for node_id, field_name in self.FIELD_MAPPING.items():
+
+                if node_id not in obj.data:
+                    continue
+
+                concept_id = obj.data[node_id]
+
+                # get preflabel for concept ID and add to tile data,
+				# or set to "NOT AVAILABLE" if no concept ID is found
+                if concept_id is not None:
+                    tile_data[field_name] = (
+                        get_preflabel_from_valueid(
+                            concept_id,
+                            lang="en"
+                        )["value"]
+                    )
+                else:
+                    tile_data[field_name] = "NOT AVAILABLE"
+
+            if tile_data:
+                document["tiles"].append(tile_data)
+
+        return document, str(resourceinstance.resourceinstanceid)</script>
+    				</code>
+				</pre>
+			</section>
+
+
+
+
+
+			<section data-auto-animate>
+				<h4 style="color:lightskyblue;font-weight:bold">Custom Index</h4>
+				<li style="text-align: left;font-size:50% ; margin-bottom: 8px;">Add custom index in settings.py</li>
+
+				<pre style="width: fit-content; margin: 8px auto;">
+					<code style="font-size: 90%; box-shadow: none;display: block;">
+						<script type="text/template">ELASTICSEARCH_CUSTOM_INDEXES = [{
+    'module': '{path to file with SampleIndex class}.SampleIndex',
+    'name': 'hl_index'
+}]</script>
+    				</code>
+				</pre>
+
+				<li style="text-align: left;font-size:50%; margin-bottom: 8px;">Registering custom index</li>
+
+				<pre style="width: fit-content; margin: 8px auto;">
+					<code style="font-size: 90%; box-shadow: none;display: block;">
+							<script type="text/template";>python manage.py es add_index --name hl_index</script>
+						</code>
+					</pre>
+			<li style="text-align: left;font-size:50%; margin-bottom: 8px;">Indexing</li>
+
+				<pre style="width: fit-content; margin: 0 auto;">
+					<code style="font-size: 90%; box-shadow: none;display: block;">
+							<script type="text/template";>python manage.py es index_database --name hl_index</script>
+						</code>
+					</pre>
+			</section>
+
+
+
+<section>
+  <h4 style="color: lightskyblue; font-weight: bold; text-align: center; margin-bottom: 10px;">
+    Visualisations
+  </h4>
+  <img
+    src="assets/img/kibana_11.jpg"
+    alt="Kibana startup screen"
+   
+    style="display: block; margin: 0 auto 10px auto;"
+  >
+
+</section>
+
+
+
+<section>
+
+  <p style="font-size: 100%; ">
+    <a style="color:lightskyblue;font-weight:bold" href="http://127.0.0.1:5601/app/dashboards#/view/9a2b2e9c-bfc3-47c0-a16d-3b3de38b0b5f" target="_blank">
+      Demo Dashboard
+    </a>
+  </p>
+</section>
+
+
+
+
+
+			<section data-auto-animate>
+				<h4 style="color:lightskyblue;font-weight:bold">Data - Index Aliases</h4>
+				<pre style="width: 800px; margin: 0 auto;">
+					<code style="font-size: 90%; box-shadow: none;display: block;">
+							<script type="text/template";>POST /_aliases
+{
+  "actions": [
+    {
+      "add": {
+        "index": "mahsa_project_hl_index",
+        "alias": "mahsa_project_hl_index_as",
+        "filter": {
+          "term": {
+            "tiles.classification.keyword": "Archaeological Site"
+          }
+        }
+      }
+    }
+  ]
+}</script>
+						</code>
+					</pre>
+			</section>
+
+
+<section>
+  <h4 style="color: lightskyblue; font-weight: bold; text-align: center; margin-bottom: 10px;">
+    Access - Roles
+  </h4>
+  <img
+    src="assets/img/kibana_12.jpg"
+    alt="Kibana startup screen"
+   
+    style="display: block; margin: 0 auto 10px auto;"
+  >
+
+</section>
+
+
+<section>
+  <h4 style="color: lightskyblue; font-weight: bold; text-align: center; margin-bottom: 10px;">
+    Visualisations
+  </h4>
+  <img
+    src="assets/img/kibana_13.jpg"
+    alt="Kibana startup screen"
+   
+    style="display: block; margin: 0 auto 10px auto;"
+  >
+
+</section>
+
+<section>
+	<h4 style="color:lightskyblue;font-weight:bold">Thank you</h4>
+
+</section>
+
+
+
+		</div>
+	</div>
+
+	<script src="../../reveal/dist/reveal.js"></script>
+	<script src="../../reveal/plugin/notes/notes.js"></script>
+	<script src="../../reveal/plugin/markdown/markdown.js"></script>
+	<script src="../../reveal/plugin/highlight/highlight.js"></script>
+	<script>
+		// More info about initialization & config:
+		// - https://revealjs.com/initialization/
+		// - https://revealjs.com/config/
+		Reveal.initialize({
+			hash: true,
+
+			margin: -0.2,
+			slideNumber: true,
+			showSlideNumber: 'all',
+			center: true,
+			maxHeight: 700,   // Maximum height for slides
+
+
+
+			// Learn about plugins: https://revealjs.com/plugins/
+			plugins: [RevealMarkdown, RevealHighlight, RevealNotes]
+		});
+	</script>
+</body>
+
+</html>
